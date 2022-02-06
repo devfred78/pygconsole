@@ -1,3 +1,9 @@
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pygconsole)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/devfred78/pygconsole)
+![GitHub](https://img.shields.io/github/license/devfred78/pygconsole)
+![GitHub issues](https://img.shields.io/github/issues/devfred78/pygconsole)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/devfred78/pygconsole)
+
 # pygconsole
 
 ANSI terminal emulation for Pygame.
