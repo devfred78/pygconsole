@@ -63,7 +63,7 @@ Those lines initalize a full HD, fullscreen display, with a background image nam
 Initialize an I/O text, buffered stream with:
 
 ```python
-iotextstreaam = pygconsole.io.TextIOConsoleWrapper(console_name="pygame_console", newline='\r\n', line_buffering=True)
+iotextstream = pygconsole.io.TextIOConsoleWrapper(console_name="pygame_console", newline='\r\n', line_buffering=True)
 ```
 
 Retrieve the console created "under the hoods" with this I/O stream:
@@ -88,9 +88,9 @@ while True:
 			if event.key == K_ESCAPE:
 				sys.exit() # Exit when hitting the ESCAPE key
 			elif event.key == K_RETURN:
-				print("", file=iotextstreaam, flush=True) # New line
+				print("", file=iotextstream, flush=True) # New line
 		if event.type == TEXTINPUT: # When typing a key with a writable character...
-			print(event.text, end='', file=iotextstreaam, flush=True) # Display the character
+			print(event.text, end='', file=iotextstream, flush=True) # Display the character
 		
 	# Background display
 	screen_surface.blit(background_surface,(0,0))
@@ -107,7 +107,7 @@ If you wish to custom the console, you can initialize it independantly, and assi
 ```python
 my_console = pygconsole.console.get_console(name="custom_console",width=120,height=50)
 
-iotextstreaam = pygconsole.io.TextIOConsoleWrapper(console_name="custom_console", newline='\r\n', line_buffering=True)
+iotextstream = pygconsole.io.TextIOConsoleWrapper(console_name="custom_console", newline='\r\n', line_buffering=True)
 ```
 
 A console is identified by its name, 2 consoles with the same name are in reality the same instance of the Console class.
@@ -195,7 +195,7 @@ ESC [ 107 m		# bright white
 For instance, to display "Hello world !" in red:
 
 ```python
-print("\x1b[31mHello world !", file=iotextstreaam, flush=True)
+print("\x1b[31mHello world !", file= iotextstream, flush=True)
 ```
 
 Multiple numeric params to the 'm' command can be combined into a single sequence:
