@@ -34,6 +34,12 @@ Install from PyPi with:
 pip install pygconsole
 ```
 
+As an alternative, you can download the `*.whl` file from the last [release on the pygconsole Github repository](https://github.com/devfred78/pygconsole/releases), and execute the following command (replace "X.Y.Z" by the right version number):
+
+```sh
+pip install pygconsole-X.Y.Z-py3-none-any.whl
+```
+
 ## Usage
 
 First, import the package with the following command:
