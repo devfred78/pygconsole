@@ -476,8 +476,11 @@ class Console():
 			self.log.warning(f"{value} cannot be applied to a transparency value. The default value is kept: {self.Console.DEFAULT_ALPHA}")
 			value_int = Console.DEFAULT_ALPHA
 		finally:
+			if value_int > 255: value_int = 255
+			elif value_int < 0: value_int = 0
 			self._font_transparency = value_int
 			self.log.debug(f"The font transparency is set to {value_int}.")
+			self._render_all()
 	
 	@property
 	def background_transparency(self):
@@ -494,8 +497,11 @@ class Console():
 			self.log.warning(f"{value} cannot be applied to a transparency value. The default value is kept: {self.Console.DEFAULT_ALPHA}")
 			value_int = Console.DEFAULT_ALPHA
 		finally:
+			if value_int > 255: value_int = 255
+			elif value_int < 0: value_int = 0
 			self._background_transparency = value_int
 			self.log.debug(f"The background transparency is set to {value_int}.")
+			self._render_all()
 	
 	@property
 	def italic(self):
