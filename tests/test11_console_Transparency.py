@@ -133,6 +133,10 @@ def main():
 			text_surface = font.render(text_line,True,FONT_COLOUR)
 			screen_surface.blit(text_surface,text_line_coordinates)
 			text_line_coordinates = text_line_coordinates._replace(y=text_line_coordinates.y+line_space)
+		# Additional line: level of opacity
+		text_line = f"Level of opacity (0-255): {console.background_transparency}"
+		text_surface = font.render(text_line,True,FONT_COLOUR)
+		screen_surface.blit(text_surface,text_line_coordinates)
 		
 		# Console display
 		screen_surface.blit(console.surface,CONSOLE_COORDINATES)
