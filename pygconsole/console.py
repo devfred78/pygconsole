@@ -307,8 +307,13 @@ class Console():
 		surf_width = char_width * self._width
 		surf_height = char_height * self._height
 		self._current_surface = pygame.Surface((surf_width, surf_height), flags=SRCALPHA)
-		with pygame.PixelArray(self._current_surface) as currentpxarray:
-			currentpxarray[:] = pygame.Color(0, 0, 0, 0) # invisible surface by default
+		self._current_surface = self._current_surface.convert_alpha()
+		
+		# set the default transparency
+		surface_alpha_array = pygame.surfarray.pixels_alpha(self._current_surface)
+		surface_alpha_array[:] = Console.DEFAULT_ALPHA
+		del(surface_alpha_array)
+		
 		self._previous_surface = self._current_surface.copy()
 		
 		# Presentation stream initialization
@@ -843,9 +848,15 @@ class Console():
 			local_font.underline = self._presentation_stream[index].underline
 			font_surf = local_font.render(self._presentation_stream[index].str, True, self._presentation_stream[index].foreground_colour, self._presentation_stream[index].background_colour)
 		
+		# set transparency
+		font_surf = font_surf.convert_alpha()
+		font_alpha_array = pygame.surfarray.pixels_alpha(font_surf)
+		font_alpha_array[:] = self._background_transparency
+		del(font_alpha_array)
+		
 		with self._update_surface_lock:
 			self._current_surface.blit(font_surf,coord_char)
-			# self._current_surface = self._current_surface.convert_alpha()
+			self._current_surface = self._current_surface.convert_alpha()
 		
 		self._previous_surface = self._current_surface.copy()
 	
@@ -877,11 +888,17 @@ class Console():
 				local_font.underline = self._presentation_stream[index].underline
 				font_surf = local_font.render(self._presentation_stream[index].str, True, self._presentation_stream[index].foreground_colour, self._presentation_stream[index].background_colour)
 			
-			surf_to_blit.append((font_surf,coord_char))
+			# set transparency
+			font_surf = font_surf.convert_alpha()
+			font_alpha_array = pygame.surfarray.pixels_alpha(font_surf)
+			font_alpha_array[:] = self._background_transparency
+			del(font_alpha_array)
+			
+			surf_to_blit.append((font_surf,coord_char,font_surf.get_rect()))
 		
 		with self._update_surface_lock:		
 			self._current_surface.blits(surf_to_blit,doreturn=False)
-			# self._current_surface = self._current_surface.convert_alpha()
+			self._current_surface = self._current_surface.convert_alpha()
 		
 		self._previous_surface = self._current_surface.copy()
 	
@@ -906,10 +923,14 @@ class Console():
 				local_font.underline = self._presentation_stream[index].underline
 				font_surf = local_font.render(self._presentation_stream[index].str, True, self._presentation_stream[index].foreground_colour, self._presentation_stream[index].background_colour)
 			
-			surf_to_blit.append((font_surf,coord_char))
+			surf_to_blit.append((font_surf,coord_char,font_surf.get_rect()))
 		
 		with self._update_surface_lock:		
 			self._current_surface.blits(surf_to_blit,doreturn=False)
-			# self._current_surface = self._current_surface.convert_alpha()
+			# set transparency
+			self._current_surface = self._current_surface.convert_alpha()
+			surface_alpha_array = pygame.surfarray.pixels_alpha(self._current_surface)
+			surface_alpha_array[:] = self._background_transparency
+			del(surface_alpha_array)
 		
 		self._previous_surface = self._current_surface.copy()
