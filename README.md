@@ -32,7 +32,7 @@ pygconsole depends on the following packages. The installation of pygconsole sho
 	pip install colorlog
 	```
 
-* numpy: version 1.22.0 or above
+* numpy: version 1.6.2 or above
 
 	```sh
 	pip install numpy
