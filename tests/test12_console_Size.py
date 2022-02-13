@@ -40,18 +40,22 @@ BACKGROUND_IMAGE = os.path.join(RESOURCE_DIR,"background.jpg") # Background imag
 FONT = None # Font displayed outside of the console (None = default pygame font)
 
 DISPLAY_SIZE = Coordinates(1920,1080) # screen resolution
-CONSOLE_COORDINATES = Coordinates(500,100) # upper left corner coordinates of the console
+CONSOLE_COORDINATES = Coordinates(700,100) # upper left corner coordinates of the console
 FRAMERATE = 50 # Maximum number of displaying loops per second
 
 FONT_SIZE = 40 # size of the font displayed on the screen, but out of the console
 FONT_COLOUR = Colour(255,0,0,255) # Colour of the font displayed outside of the console
 TEXT_COORDINATES = Coordinates(50,50) # Coordinates of the first line of the text displayed outside of the console
 CONSOLE_DEFAULT_FONT_SIZE = 10 # Default font size displayed on the console
+CONSOLE_DEFAULT_WIDTH = 80 # Default width of the console, in characters
+CONSOLE_DEFAULT_HEIGHT = 24 # Default height of the console, in characters
 
 TEXT_LIST = [
 	"Test 12:  Test console sizes",
 	"Press '+' to increase font size",
 	"Press '-' to decrease size",
+	"Press 'UP or DOWN arrow' to change height",
+	"Press 'LEFT or RIGHT arrow' to change width",
 	"ESCAPE key to exit."
 			]
 
@@ -109,7 +113,9 @@ def main():
 	
 	# console initialization
 	console_font_size = CONSOLE_DEFAULT_FONT_SIZE
-	console = pygconsole.console.Console.get_console(name = f"console{console_font_size}", font_size = console_font_size, logger = log)
+	console_width = CONSOLE_DEFAULT_WIDTH
+	console_height = CONSOLE_DEFAULT_HEIGHT
+	console = pygconsole.console.Console.get_console(name = f"console{console_font_size}", width = console_width, height = console_height, font_size = console_font_size, logger = log)
 	console.add_char(LONG_TEXT)
 	
 	# Displaying loop
@@ -131,6 +137,24 @@ def main():
 					if console_font_size <= 0: console_font_size = 1
 					console = pygconsole.console.Console.get_console(name = f"console{console_font_size}", font_size = console_font_size, logger = log)
 					console.clear()
+					console.add_char(LONG_TEXT)
+				elif event.key == K_UP:
+					console_height += 1
+					console.height = console_height
+					console.add_char(LONG_TEXT)
+				elif event.key == K_DOWN:
+					console_height -= 1
+					if console_height <= 0: console_height = 1
+					console.height = console_height
+					console.add_char(LONG_TEXT)
+				elif event.key == K_RIGHT:
+					console_width += 1
+					console.width = console_width
+					console.add_char(LONG_TEXT)
+				elif event.key == K_LEFT:
+					console_width -= 1
+					if console_width <= 0: console_width = 1
+					console.width = console_width
 					console.add_char(LONG_TEXT)
 		
 		# Background display
