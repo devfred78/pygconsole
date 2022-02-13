@@ -129,13 +129,19 @@ def main():
 				if event.key == K_ESCAPE: sys.exit()
 				elif event.key == K_PLUS or event.key == K_KP_PLUS:
 					console_font_size += 1
-					console = pygconsole.console.Console.get_console(name = f"console{console_font_size}", font_size = console_font_size, logger = log)
+					console = pygconsole.console.Console.get_console(name = f"console{console_font_size}", width = console_width, height = console_height, font_size = console_font_size, logger = log)
+					# set dimensions again for consoles already initialized
+					console.height = console_height
+					console.width = console_width
 					console.clear()
 					console.add_char(LONG_TEXT)
 				elif event.key == K_MINUS or event.key == K_KP_MINUS:
 					console_font_size -= 1
 					if console_font_size <= 0: console_font_size = 1
-					console = pygconsole.console.Console.get_console(name = f"console{console_font_size}", font_size = console_font_size, logger = log)
+					console = pygconsole.console.Console.get_console(name = f"console{console_font_size}", width = console_width, height = console_height, font_size = console_font_size, logger = log)
+					# set dimensions again for consoles already initialized
+					console.height = console_height
+					console.width = console_width
 					console.clear()
 					console.add_char(LONG_TEXT)
 				elif event.key == K_UP:
