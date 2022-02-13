@@ -587,10 +587,7 @@ class Console():
 		if value > 0:
 			self._width = value
 			# Console re-init
-			self._presentation_stream = deque([None] * self._width * self._height, self._char_memory_size)
-			self._cursor = 0
-			self._start_window = 0
-			self._end_window = self._width * self._height - 1
+			self._init_console()
 		else: self.log.warning(f"Console width cannot be negative. The previous value is kept: {self._width}")
 	
 	@property
@@ -607,10 +604,7 @@ class Console():
 		if value > 0:
 			self._height = value
 			# Console re-init
-			self._presentation_stream = deque([None] * self._width * self._height, self._char_memory_size)
-			self._cursor = 0
-			self._start_window = 0
-			self._end_window = self._width * self._height - 1
+			self._init_console()
 		else: self.log.warning(f"Console height cannot be negative. The previous value is kept: {self._height}")
 		
 	#############################################################
