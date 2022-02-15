@@ -128,7 +128,11 @@ class Console():
 	DEFAULT_ALPHA = 255 # Default console transparency (0=invisible, 255=opaque)
 	DEFAULT_FOREGROUND_COLOUR = Colour(255,255,255,DEFAULT_ALPHA) # Default font colour
 	DEFAULT_BACKGROUND_COLOUR = Colour(0,0,0,DEFAULT_ALPHA) # Default background colour
-	DEFAULT_CHAR_MEMORY_SIZE = 80*24*10 # Default amount of memorized characters
+	
+	DEFAULT_WIDTH = 80
+	DEFAULT_HEIGHT = 24
+	DEFAULT_MEMORY_SCREENS = 10
+	DEFAULT_CHAR_MEMORY_SIZE = DEFAULT_WIDTH*DEFAULT_HEIGHT*DEFAULT_MEMORY_SCREENS # Default amount of memorized characters
 	
 	STANDARD_COLOURS = {
 						'black':			Colour(0,0,0,DEFAULT_ALPHA),
@@ -155,7 +159,7 @@ class Console():
 	# Static methods
 	
 	@staticmethod
-	def get_console(name = __name__, width = 80, height = 24, font_size = 10, font_transparency = DEFAULT_ALPHA, background_transparency = DEFAULT_ALPHA, logger = None):
+	def get_console(name = __name__, width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT, font_size = 10, font_transparency = DEFAULT_ALPHA, background_transparency = DEFAULT_ALPHA, logger = None):
 		"""
 		Return a Console instance.
 		
@@ -255,7 +259,7 @@ class Console():
 	#############################################################
 	# Initialization
 	
-	def __init__(self, name = __name__, width = 80, height = 24, font_size = 10, font_transparency = DEFAULT_ALPHA, background_transparency = DEFAULT_ALPHA, logger = None):
+	def __init__(self, name = __name__, width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT, font_size = 10, font_transparency = DEFAULT_ALPHA, background_transparency = DEFAULT_ALPHA, logger = None):
 		"""
 		Parameters
 		----------
@@ -558,7 +562,7 @@ class Console():
 		"""
 		Amount of memorized characters.
 		
-		If modified, the console is re-initialized, and all memorized characters are lost. Its value must be higher or equal to the amount of displayable characters on the console surface. If not, the set value is ignored, and the attribute remains unchanged.
+		Its value must be higher or equal to the amount of displayable characters on the console surface. If not, the set value is ignored, and the attribute remains unchanged.
 		"""
 		return self._char_memory_size
 	
@@ -566,11 +570,10 @@ class Console():
 	def memory_size(self, value):
 		if value >= self._width * self._height:
 			self._char_memory_size = value
-			# Console re-init
-			self._presentation_stream = deque([None] * self._width * self._height, self._char_memory_size)
-			self._cursor = 0
-			self._start_window = 0
-			self._end_window = self._width * self._height - 1
+			# Presentation stream update
+			self._temp_presentation_stream = deque([], self._char_memory_size)
+			self._temp_presentation_stream.extend(self._presentation_stream)
+			self._presentation_stream = self._temp_presentation_stream.copy()
 		else: self.log.warning(f"Memory cannot be less than {self._width * self._height}. The previous value is kept: {self._char_memory_size}")
 	
 	@property
@@ -578,7 +581,7 @@ class Console():
 		"""
 		Console width, in characters.
 		
-		If modified, the console is re-initialized, and all memorized characters are lost. If the set value is negative or null, it is ignored, and the attribute remains unchanged.
+		If the set value is negative or null, it is ignored, and the attribute remains unchanged.
 		"""
 		return self._width
 	
@@ -586,8 +589,22 @@ class Console():
 	def width(self, value):
 		if value > 0:
 			self._width = value
-			# Console re-init
-			self._init_console()
+			self.log.info(f"Width console update. New value = {self._width}")
+			# Memory size update
+			self.memory_size = self._width * self._height * Console.DEFAULT_MEMORY_SCREENS
+			# Presentation stream padding if necessary
+			self._end_window = self._start_window + self._width * self._height - 1
+			if len(self._presentation_stream) < self._end_window + 1:
+				padding = [None] * (self._end_window + 1 - len(self._presentation_stream))
+				self._presentation_stream.extend(padding)
+			# Surface render update
+			with self._update_surface_lock:
+				char_width, char_height = self._normal_font.size(" ") # Works only with fixed-width fonts !
+				surf_width = char_width * self._width
+				surf_height = char_height * self._height
+				self._current_surface = pygame.Surface((surf_width, surf_height), flags=SRCALPHA)
+				self._current_surface = self._current_surface.convert_alpha()
+			self._render_all()
 		else: self.log.warning(f"Console width cannot be negative. The previous value is kept: {self._width}")
 	
 	@property
@@ -595,7 +612,7 @@ class Console():
 		"""
 		Console height, in characters.
 		
-		If modified, the console is re-initialized, and all memorized characters are lost. If the set value is negative or null, it is ignored, and the attribute remains unchanged.
+		If the set value is negative or null, it is ignored, and the attribute remains unchanged.
 		"""
 		return self._height
 	
@@ -603,8 +620,22 @@ class Console():
 	def height(self, value):
 		if value > 0:
 			self._height = value
-			# Console re-init
-			self._init_console()
+			self.log.info(f"Height console update. New value = {self._height}")
+			# Memory size update
+			self.memory_size = self._width * self._height * Console.DEFAULT_MEMORY_SCREENS
+			# Presentation stream padding if necessary
+			self._end_window = self._start_window + self._width * self._height - 1
+			if len(self._presentation_stream) < self._end_window + 1:
+				padding = [None] * (self._end_window + 1 - len(self._presentation_stream))
+				self._presentation_stream.extend(padding)
+			# Surface render update
+			with self._update_surface_lock:
+				char_width, char_height = self._normal_font.size(" ") # Works only with fixed-width fonts !
+				surf_width = char_width * self._width
+				surf_height = char_height * self._height
+				self._current_surface = pygame.Surface((surf_width, surf_height), flags=SRCALPHA)
+				self._current_surface = self._current_surface.convert_alpha()
+			self._render_all()
 		else: self.log.warning(f"Console height cannot be negative. The previous value is kept: {self._height}")
 		
 	#############################################################
