@@ -472,7 +472,7 @@ class TextIOConsoleWrapper(io.TextIOWrapper):
 	#############################################################
 	# Initialisation
 	
-	def __init__(self, console_name = "pygame_console", errors=None, newline=None, line_buffering=False, write_through=False):
+	def __init__(self, console_name = "pygame_console", errors=None, newline='\r\n', line_buffering=True, write_through=True):
 		"""
 		Parameters
 		----------
@@ -481,13 +481,23 @@ class TextIOConsoleWrapper(io.TextIOWrapper):
 		error: str
 			optional string that specifies how encoding and decoding errors are to be handled.
 		newline: str
-			controls how line endings are handled.  It can be None, '', '\n', '\r', and '\r\n'.
+			controls how line endings are handled.  It can be None, '', '\n', '\r', and '\r\n'. Default is '\r\n'.
 		line_buffering: bool
-			If True, flush() is implied when a call to write contains a newline character or a carriage return. Default is False.
+			If True, flush() is implied when a call to write contains a newline character or a carriage return. Default is True.
 		write_through: bool
-			If True, calls to write() are guaranteed not to be buffered. Default is False.
+			If True, calls to write() are guaranteed not to be buffered. Default is True.
 		"""
 		buffer = BufferedIOConsole(console_name)
 		# To be compliant with RawIOConsole, encoding must be utf-8.
 		encoding = 'utf-8'
 		super().__init__(buffer, encoding, errors, newline, line_buffering, write_through)
+	
+	# write() needs re-implementation since the `write_through` parameter seems not to work properly (or at least not as expected)
+	def write(self, s):
+		"""
+		Write the string s to the stream and return the number of characters written. if the `write_through` attribute is set to True, the string is readily written to the underlying stream. Otherwise, it is held in the buffer.
+		"""
+		nb_char = super().write(s)
+		if self.write_through: self.flush()
+		
+		return nb_char
