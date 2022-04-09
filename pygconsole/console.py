@@ -641,6 +641,53 @@ class Console():
 	#############################################################
 	# Public methods
 	
+	def change_font(self, font_dict):
+		"""
+		Change the font set used for the text rendering.
+		
+		font_dict is a dictionnary with 4 keys: "normal", "bold", "italic", "bolditalic". Each associated value can be a string containing a path, or pathlib.Path object, or a file-like object, pointing towards the corresponding font file. Only the key "normal" is mandatory. If one or several others are None, missing or pointing towards a wrong path, the font is rendered from the "normal" one, using the Pygame builtin mechanism.
+		This method should be called before the first text rendering, otherwise it can cause unexpected temporarly font mix with the default ones.
+		
+		Parameters
+		----------
+		font_dict: dict
+			Paths to the new font set.
+		"""
+		try:
+			normal_path = font_dict["normal"]
+		except KeyError:
+			self.log.warning("No new normal font defined. Default fonts will be used.")
+			self._init_font(self._font_size)
+		else:
+			try:
+				self._normal_font = pygame.font.Font(normal_path, self._font_size)
+			except:
+				self.log.warning("The new normal font cannot be loaded. The default normal font is used.")
+				# get binary resources
+				normal_font_bin = pkgutil.get_data(__name__, Console.DEFAULT_NORMAL_FONT)
+				# translate binaries into file-like objects
+				normal_font_file = io.BytesIO(normal_font_bin)
+				# Creation of pygame.font.Font objects
+				self._normal_font = pygame.font.Font(normal_font_file, self._font_size)
+			finally:
+				try:
+					self._bold_font = pygame.font.Font(font_dict["bold"], self._font_size)
+				except:
+					self.log.warning("No new bold font loaded. Bold rendering will be deduced from normal font.")
+					self._bold_font = None
+				try:
+					self._italic_font = pygame.font.Font(font_dict["italic"], self._font_size)
+				except:
+					self.log.warning("No new italic font loaded. Italic rendering will be deduced from normal font.")
+					self._italic_font = None
+				try:
+					self._bolditalic_font = pygame.font.Font(font_dict["bolditalic"], self._font_size)
+				except:
+					self.log.warning("No new bold italic font loaded. Bold italic rendering will be deduced from normal font.")
+					self._bolditalic_font = None
+
+			
+	
 	def add_char(self, char):
 		"""
 		Display one or several characters on the console, at the current cursor position.
@@ -863,13 +910,30 @@ class Console():
 			font_surf = self._normal_font.render(" ", True, self.foreground_colour, self.background_colour)
 		else:
 			if self._presentation_stream[index].bold and self._presentation_stream[index].italic:
-				local_font = self._bolditalic_font
+				if self._bolditalic_font is None:
+					local_font = self._normal_font
+					local_font.bold = True
+					local_font.italic = True
+				else:
+					local_font = self._bolditalic_font
 			elif self._presentation_stream[index].bold and not self._presentation_stream[index].italic:
-				local_font = self._bold_font
+				if self._bold_font is None:
+					local_font = self._normal_font
+					local_font.bold = True
+					local_font.italic = False
+				else:
+					local_font = self._bold_font
 			elif self._presentation_stream[index].italic and not self._presentation_stream[index].bold:
-				local_font = self._italic_font
+				if self._italic_font is None:
+					local_font = self._normal_font
+					local_font.bold = False
+					local_font.italic = True
+				else:
+					local_font = self._italic_font
 			else:
 				local_font = self._normal_font
+				local_font.bold = False
+				local_font.italic = False
 			local_font.underline = self._presentation_stream[index].underline
 			font_surf = local_font.render(self._presentation_stream[index].str, True, self._presentation_stream[index].foreground_colour, self._presentation_stream[index].background_colour)
 		
