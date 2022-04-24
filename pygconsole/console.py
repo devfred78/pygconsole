@@ -685,6 +685,15 @@ class Console():
 				except:
 					self.log.warning("No new bold italic font loaded. Bold italic rendering will be deduced from normal font.")
 					self._bolditalic_font = None
+				
+					# Surface render update
+				with self._update_surface_lock:
+					char_width, char_height = self._normal_font.size(" ") # Works only with fixed-width fonts !
+					surf_width = char_width * self._width
+					surf_height = char_height * self._height
+					self._current_surface = pygame.Surface((surf_width, surf_height), flags=SRCALPHA)
+					self._current_surface = self._current_surface.convert_alpha()
+				self._render_all()
 
 			
 	
