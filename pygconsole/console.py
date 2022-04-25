@@ -102,6 +102,8 @@ class Console():
 	
 	Methods
 	-------
+	change_font(font_dict)
+		Change the font set used for the text rendering.
 	add_char(char)
 		Display one or several characters on the console, at the current cursor position.
 	clear(mode = "all")
